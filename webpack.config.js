@@ -10,6 +10,9 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const Webpack = require('webpack');
 
+const Development=require('./webpack/development');
+const Production=require('./webpack/production');
+
 const Config={
     entry:{
         app:'./src/app.jsx',
@@ -81,7 +84,7 @@ const Config={
                 collapseInlineTagWhitespace:true,//折叠时不要在元素之间留下任何空格
             },
             xhtml:true
-        }),
+        },),
         new HtmlWebPackPlugin({
             title:'BlogAdmin',
             template: "./template/index.tpl",
@@ -108,51 +111,14 @@ const Config={
 }
 
 module.exports=(evn,argv)=>{
-
     if (argv.mode === 'development') {
-        Config.mode='development'
-        Config.devtool = 'source-map';
-        Config.devServer={
-            contentBase:path.join(__dirname,"dist"),
-            historyApiFallback: true,
-            hot:true,
-            inline: true,
-            progress: true,
-            compress:true,
-            port:5000,
-            host:'127.0.0.1',
-            proxy:{
-                "/api/*":{
-                    target:'http://wei.aoyang.com',
-                    pathRewrite:{"^/api/":''},
-                    changeOrigin:true,
-                    secure: false,
-                    bypass:function(req, res, proxyOptions){
-                        console.log(req, res, proxyOptions)
-                    }
-                }
-            }
-        }
-
-        // 添加 Sourcemap 支持
-        Config.plugins.push(
-            new Webpack.SourceMapDevToolPlugin({
-                filename: '[file].map',
-                exclude: ['vendor.js'] // vendor 通常不需要 sourcemap
-            })
-        );
-        //添加开发时的插件
-        Config.plugins.push(
-            new Webpack.HotModuleReplacementPlugin(),
-            new Webpack.NamedModulesPlugin(),
-            //设置全局变量
-            new Webpack.DefinePlugin({
-                __DEV__: true,
-                SERVICE_URL: JSON.stringify('/api/')
-            }),
-        );
+        Config.mode='development';
+        Config.devtool = 'eval-source-map';
+        Development(Config);
     }else if(argv.mode === 'production'){
-        Config.mode='production'
+        Config.devtool='nosources-source-map';
+        Config.mode='production';
+        Production(Config)
     }
 
     return Config;
