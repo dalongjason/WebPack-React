@@ -2,6 +2,11 @@ const path=require("path");
 const Webpack = require('webpack');
 module.exports=Development=(Config)=>{
     Config.devServer={
+             contentBase: './dist'
+    };
+    Config.mode='development';
+    Config.devtool = 'inline-source-map';
+    Config.devServer={
         contentBase:path.join(__dirname,"dist"),
         historyApiFallback: true,
         hot:true,

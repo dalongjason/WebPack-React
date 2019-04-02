@@ -1,6 +1,8 @@
+// import "@babel/polyfill";
 import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
+import Index from './Views/index.jsx';
 
-import Index from './view/front/index.jsx';
+ReactDOM.render(<Index/>, document.getElementById("root"))
 
-ReactDOM.render(<Index/>,document.getElementById('root'));
+
