@@ -24,6 +24,18 @@ const Config={
         filename : 'js/[name].min.js', //打包之后输出的文件名
         chunkFilename: "js/chunk/[name].js"
     },
+    optimization: {
+        splitChunks: {
+            cacheGroups: {
+                styles: {
+                    name: 'styles',
+                    test: /\.css$/,
+                    chunks: 'all',
+                    enforce: true
+                }
+            }
+        }
+    },
     module: {
         rules: [
             {
@@ -33,19 +45,40 @@ const Config={
                     loader: "babel-loader",
                 }
             },{
-                test: /\.(le|c)ss$/i,
+                test: /\.(sa|le|c)ss$/i,
                 use:[
-                    // MiniCssExtractPlugin.loader,
                     {
-                        loader: 'style-loader'
+                        loader: MiniCssExtractPlugin.loader ,options:{
+                            minimize: true,
+                            publicPath: '../'
+                        }
                     }, {
                         loader: 'css-loader', options: {
                             sourceMap: true
                         }
                     }, {
                         loader: 'less-loader', options: {
-                            sourceMap: true
-                        }}
+                            strictMath: true,
+                            noIeCompat: true
+                        }
+                    },{
+                        loader:'sass-loader',options: {
+                            sourceMap: true,
+                            importLoaders: 1
+                        }
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            ident: 'postcss',
+                            plugins: (loader) => [
+                                require('postcss-import')({ root: loader.resourcePath }),
+                                require('postcss-cssnext')(),
+                                require('autoprefixer')(),
+                                require('cssnano')()
+                            ]
+                        }
+                    }
                 ],
                 exclude: /node_modules/
             },{

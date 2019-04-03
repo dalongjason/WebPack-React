@@ -24,6 +24,15 @@ module.exports=Development=(Config)=>{
                 bypass:function(req, res, proxyOptions){
                     console.log(req, res, proxyOptions)
                 }
+            },
+            "/apis/*":{
+                target:'http://php.jason.com/api/',
+                pathRewrite:{"^/apis/":''},
+                changeOrigin:true,
+                secure: false,
+                bypass:function(req, res, proxyOptions){
+                    console.log(req, res, proxyOptions)
+                }
             }
         }
     }

@@ -25,7 +25,7 @@ class Home extends Component{
         let {Loading} = this.state;
 
         return(
-            <div className="ListBox">
+            <div className="ListBox" style={{backgroundColor:"red"}}>
                我是首页
             </div>
         )
