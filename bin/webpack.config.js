@@ -7,7 +7,9 @@
 const path=require("path");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const Webpack = require('webpack');
 
 const Development=require('./webpack/development');
@@ -34,7 +36,15 @@ const Config={
                     enforce: true
                 }
             }
-        }
+        },
+        minimizer: [
+            new UglifyJsPlugin({
+                cache: true,
+                parallel: true,
+                sourceMap: true // set to true if you want JS source maps
+            }),
+            new OptimizeCSSAssetsPlugin({})
+        ]
     },
     module: {
         rules: [
@@ -45,7 +55,7 @@ const Config={
                     loader: "babel-loader",
                 }
             },{
-                test: /\.(sa|le|c)ss$/i,
+                test: /\.(sa|sc|le|c)ss$/i,
                 use:[
                     {
                         loader: MiniCssExtractPlugin.loader ,options:{
@@ -120,6 +130,8 @@ module.exports=(evn,argv)=>{
         Development(Config);
     }else if(argv.mode === 'production'){
         Production(Config)
+    }else {
+        console.log(argv.mode,'@@@@@@@@@@@@@@@')
     }
 
     return Config;
