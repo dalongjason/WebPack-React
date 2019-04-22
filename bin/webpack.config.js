@@ -1,138 +1,105 @@
 /**
- * @Author Jason
- * @Describe 基础Webpack
- * @addTime 2019/03/08
- * @EditTime 2019/03/08
+ *  Created by hu on 2019-04-19.
  **/
-const path=require("path");
-const HtmlWebPackPlugin = require("html-webpack-plugin");
-const CleanWebpackPlugin = require('clean-webpack-plugin');
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const path = require('path');
 const Webpack = require('webpack');
+const WebpackManifestPlugin = require('webpack-manifest-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
-const Development=require('./webpack/development');
-const Production=require('./webpack/production');
-const HtmlWeb=require('./webpack/HtmlWeb');
 
-const Config={
-    entry:{
-        app:'./src/app.jsx',
-    },
-    output:{
-        path: path.resolve(__dirname, '../dist'),
-        publicPath:"/",
-        filename : 'js/[name].min.js', //打包之后输出的文件名
-        chunkFilename: "js/chunk/[name].js"
-    },
-    optimization: {
-        splitChunks: {
-            cacheGroups: {
-                styles: {
-                    name: 'styles',
-                    test: /\.css$/,
-                    chunks: 'all',
-                    enforce: true
+const Loader = require('./loader');
+const Paths = require('./config/paths');
+const Server = require('./config/server');
+const Optimize = require('./config/optimize');
+
+module.exports = (env,argv)=>{
+    const isEnvDevelopment=argv.mode==='development';
+    const isEnvProduction=argv.mode==='production';
+
+    const publicPath=isEnvProduction?Paths.appBuild:Paths.servedPath;
+
+    const WebpackServer= isEnvDevelopment?{devServer:Server(argv.prot,Paths.servedPath)}:{optimization:Optimize(isEnvProduction)};
+    const devtool=isEnvDevelopment?'cheap-module-source-map':'nosources-source-map';
+    //生成入口
+    appEntry=(arr)=>{
+        let appEntry={};
+        arr.map(({keys='',pathData=''})=>{
+             appEntry[keys]=[
+                     isEnvDevelopment&&require.resolve('react-dev-utils/webpackHotDevClient'),
+                     pathData
+                 ].filter(Boolean)
+        })
+        return appEntry;
+    }
+    //生成html文件
+
+    appHtml=(arr)=>{
+        let appHtml=[];
+        arr.map(({keys='',title='',chunks=[]})=>{
+            appHtml.push(new HtmlWebpackPlugin(Object.assign({},{
+                template: Paths.appHtml,
+                favicon:'',
+                hash:true,
+                chunksSortMode: 'none',
+                title:title,
+                filename: `./${keys}.html`,
+                chunks:[...chunks],
+                inject: true,
+                xhtml:true
+            },isEnvProduction?{
+                minify: {
+                    removeComments: true,
+                    collapseWhitespace: true,
+                    removeRedundantAttributes: true,
+                    collapseInlineTagWhitespace:true,
+                    useShortDoctype: true,
+                    removeEmptyAttributes: true,
+                    removeStyleLinkTypeAttributes: true,
+                    keepClosingSlash: true,
+                    minifyJS: true,
+                    minifyCSS: true,
+                    minifyURLs: true,
                 }
-            }
-        },
-        minimizer: [
-            new UglifyJsPlugin({
-                cache: true,
-                parallel: true,
-                sourceMap: true // set to true if you want JS source maps
-            }),
-            new OptimizeCSSAssetsPlugin({})
-        ]
-    },
-    module: {
-        rules: [
-            {
-                test: /\.(js|jsx)$/,
-                exclude: /node_modules/,
-                use: {
-                    loader: "babel-loader",
-                }
-            },{
-                test: /\.(sa|sc|le|c)ss$/i,
-                use:[
-                    {
-                        loader: MiniCssExtractPlugin.loader ,options:{
-                            minimize: true,
-                            publicPath: '../'
-                        }
-                    }, {
-                        loader: 'css-loader', options: {
-                            sourceMap: true
-                        }
-                    }, {
-                        loader: 'less-loader', options: {
-                            strictMath: true,
-                            noIeCompat: true
-                        }
-                    },{
-                        loader:'sass-loader',options: {
-                            sourceMap: true,
-                            importLoaders: 1
-                        }
-                    },
-                    {
-                        loader: 'postcss-loader',
-                        options: {
-                            ident: 'postcss',
-                            plugins: (loader) => [
-                                require('postcss-import')({ root: loader.resourcePath }),
-                                require('postcss-cssnext')(),
-                                require('autoprefixer')(),
-                                require('cssnano')()
-                            ]
-                        }
-                    }
-                ],
-                exclude: /node_modules/
-            },{
-                test: /\.(png|jpg|gif|webp|ico|svg)$/,
-                use: [
-                    {loader: 'url-loader',options: {limit: 10240,name:'[name].[hash:100].[ext]',emitFile: true,outputPath:'images'}},
-                ],
-
-            },{
-                test: /\.(woff|woff2|eot|ttf|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-                use:[
-                    {loader:'file-loader',options:{limit: 8192,mimetype: 'application/font-woff',name: 'fonts/[name].[hash:100].[ext]'}}
-                ]
-            }
-        ]
-    },
-    plugins:[
-        new Webpack.ProgressPlugin(),
-        //每次打包前，先清空原来目录中的内容
-        new CleanWebpackPlugin(),
-
-        // html页面输出目录
-        new HtmlWebPackPlugin({
-            title:'苏宁消费金融',
-            filename: "./index.html",
-            chunks:['app'],
-            ...HtmlWeb,
-        }),
-        //剥离css文件到单独的目录
-        new MiniCssExtractPlugin({
-            filename: "css/[name].min.css",
-            chunkFilename: "[id].min.css"
-        }),
-    ],
-}
-module.exports=(evn,argv)=>{
-
-    if (argv.mode === 'development') {
-        Development(Config);
-    }else if(argv.mode === 'production'){
-        Production(Config)
-    }else {
-        console.log(argv.mode,'@@@@@@@@@@@@@@@')
+            }:undefined)))
+        })
+        return appHtml;
     }
 
-    return Config;
+    appHtml(Paths.appEntry);
+
+    return{
+        entry:appEntry(Paths.appEntry),
+        output:{
+            path: isEnvProduction ? Paths.appBuild : Paths.servedPath,//建立文件夹。
+            pathinfo: isEnvDevelopment,// 向输出中生成的require()添加/* filename */注释。
+            filename: isEnvProduction? 'js/[name].[hash:8].js': isEnvDevelopment && 'static/js/[name].js',//每个异步块将有一个主包和一个文件。在开发中，它不会生成真正的文件。
+            chunkFilename: isEnvProduction?'js/chunk/[name].[hash:8].js':isEnvDevelopment && 'static/js/[name].chunk.js',//如果使用代码分割，还有额外的JS块文件。
+            publicPath: publicPath,
+            devtoolModuleFilenameTemplate: isEnvProduction // 指向原始磁盘位置的点sourcemap条目(格式为Windows上的URL)
+                ?info =>
+                    path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, '/'):
+                    isEnvDevelopment&&(info => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/')),
+        },
+        mode:argv.mode,
+        watch: true,
+        bail:isEnvProduction,
+        devtool:devtool,
+        module:{
+            rules:[
+                ...Loader
+            ]
+        },
+        ...WebpackServer,
+        plugins: [
+            new Webpack.ProgressPlugin(),
+            isEnvProduction?new CleanWebpackPlugin():new Webpack.HotModuleReplacementPlugin(),
+            ...appHtml(Paths.appEntry),
+            new WebpackManifestPlugin({
+                fileName: 'asset-manifest.json',
+                publicPath: publicPath,
+            })
+        ],
+
+    }
 }
