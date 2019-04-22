@@ -5,6 +5,7 @@ const path = require('path');
 const Webpack = require('webpack');
 const WebpackManifestPlugin = require('webpack-manifest-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 
@@ -90,6 +91,9 @@ module.exports = (env,argv)=>{
                 ...Loader
             ]
         },
+        resolve: {
+            extensions: [ '.tsx', '.ts', '.js' ]
+        },
         ...WebpackServer,
         plugins: [
             new Webpack.ProgressPlugin(),
@@ -98,7 +102,11 @@ module.exports = (env,argv)=>{
             new WebpackManifestPlugin({
                 fileName: 'asset-manifest.json',
                 publicPath: publicPath,
-            })
+            }),
+            new MiniCssExtractPlugin({
+                filename: isEnvProduction?"css/[name].[hash:8].css":isEnvDevelopment&&"static/css/[name].css",
+                chunkFilename: isEnvProduction?"css/[id].[hash:8].css":isEnvDevelopment&&"static/css/[id].css"
+              })
         ],
 
     }
