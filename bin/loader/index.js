@@ -9,4 +9,7 @@ const Img = require('./img');
 const File= require('./file');
 
 
-module.exports=[Jsx,Tsx,Css,Less,Img,File]
+module.exports=(mode=true)=>{
+    //mode 如果没有传人默认为生成环境
+    return [Jsx(mode),Tsx(mode),Css(mode),Less(mode),Img(mode),File(mode)]
+}

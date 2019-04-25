@@ -3,17 +3,25 @@
  **/
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-module.exports={
-    test: /\.css$/,
-    use: [
-        {loader:'style-loader',options: {
-            hmr: false
-          }
-        },
-        MiniCssExtractPlugin.loader,
-        {loader:'css-loader', options: {
-            modules: true,
-          }
-        }
-    ],
+module.exports=(mode)=>{
+    return {
+        test: /\.css$/,
+        use: [
+            !mode?{loader:'style-loader',options: {
+                    hmr: false
+                }
+            }:{loader:MiniCssExtractPlugin.loader,options:{
+                    publicPath: '/',
+                }
+            },
+            {loader:'css-loader', options: {
+                    // exportOnlyLocals: true,
+                }
+            },
+            // {loader:'postcss-loader', options: {
+            //
+            //     }
+            // }
+        ],
+    }
 }

@@ -2,25 +2,27 @@
  *  Created by hu on 2019-04-22.
  **/
 
-module.exports={
-    test: /\.(png|jpg|gif|webp|ico|svg)$/,
-    use: [
-        {
-            loader: 'url-loader',
-            options: {
-                limit: 10240,
-                name:'[name].[hash:8].[ext]',
-                emitFile: true,
-                outputPath:'images'
-            }
-        },
-        {
-            loader:'file-loader',
-            options: {
-                name:'[name].[hash:8].[ext]',
-                emitFile: true,
-                outputPath:'images'
-            }
-        }
-    ]
+module.exports=(mode)=>{
+    return {
+        test: /\.(png|jpg|gif|webp|ico)$/,
+        use: [
+            mode?{
+                loader: 'url-loader',
+                options: {
+                    limit: 10240,
+                    name:mode?'[contenthash:20].[ext]':'[name].[contenthash:2].[ext]',
+                    emitFile: true,
+                    outputPath:mode?'static/image':'static/image'
+                }
+            }:{
+                loader:'file-loader',
+                options: {
+                    name:mode?'[contenthash:20].[ext]':'[name].[contenthash:2].[ext]',
+                    emitFile: true,
+                    outputPath:mode?'static/image':'static/image'
+                }
+            },
+
+        ]
+    }
 }

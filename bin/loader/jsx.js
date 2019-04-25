@@ -3,11 +3,13 @@
  **/
 const Paths = require('../config/paths');
 
-module.exports={
-    test: /\.(js|jsx)$/,
-    exclude: /node_modules/,
-    use: {
+module.exports=(mode)=>{
+    return {
+        test: /\.(js|jsx)$/,
+            exclude: /node_modules/,
+        use: {
         loader: "babel-loader",
     },
-    include: Paths.appSrc,
+        include: Paths.appSrc,
+    }
 }

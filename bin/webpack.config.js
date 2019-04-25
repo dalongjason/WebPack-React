@@ -18,9 +18,9 @@ module.exports = (env,argv)=>{
     const isEnvDevelopment=argv.mode==='development';
     const isEnvProduction=argv.mode==='production';
 
-    const publicPath=isEnvProduction?Paths.appBuild:Paths.servedPath;
+    const publicPath=isEnvProduction?Paths.servedPath:'/';
 
-    const WebpackServer= isEnvDevelopment?{devServer:Server(argv.prot,Paths.servedPath)}:{optimization:Optimize(isEnvProduction)};
+    const WebpackServer= isEnvDevelopment?{devServer:Server(argv.prot,Paths.servedPath),optimization:Optimize(isEnvProduction)}:{optimization:Optimize(isEnvProduction)};
     const devtool=isEnvDevelopment?'cheap-module-source-map':'nosources-source-map';
     //生成入口
     appEntry=(arr)=>{
@@ -66,16 +66,13 @@ module.exports = (env,argv)=>{
         })
         return appHtml;
     }
-
-    appHtml(Paths.appEntry);
-
     return{
         entry:appEntry(Paths.appEntry),
         output:{
             path: isEnvProduction ? Paths.appBuild : Paths.servedPath,//建立文件夹。
             pathinfo: isEnvDevelopment,// 向输出中生成的require()添加/* filename */注释。
-            filename: isEnvProduction? 'js/[name].[hash:8].js': isEnvDevelopment && 'static/js/[name].js',//每个异步块将有一个主包和一个文件。在开发中，它不会生成真正的文件。
-            chunkFilename: isEnvProduction?'js/chunk/[name].[hash:8].js':isEnvDevelopment && 'static/js/[name].chunk.js',//如果使用代码分割，还有额外的JS块文件。
+            filename: isEnvProduction? 'static/js/[name].[contenthash:8].js': isEnvDevelopment && 'static/js/[name].js',//每个异步块将有一个主包和一个文件。在开发中，它不会生成真正的文件。
+            chunkFilename: isEnvProduction?'static/js/chunk/[name].[contenthash:8].js':isEnvDevelopment && 'static/js/chunk/[name].chunk.js',//如果使用代码分割，还有额外的JS块文件。
             publicPath: publicPath,
             devtoolModuleFilenameTemplate: isEnvProduction // 指向原始磁盘位置的点sourcemap条目(格式为Windows上的URL)
                 ?info =>
@@ -88,11 +85,11 @@ module.exports = (env,argv)=>{
         devtool:devtool,
         module:{
             rules:[
-                ...Loader
+                ...Loader(isEnvProduction)
             ]
         },
         resolve: {
-            extensions: [ '.tsx', '.ts', '.js' ]
+            extensions: [ '.tsx', '.ts', '.js' ,'.jsx']
         },
         ...WebpackServer,
         plugins: [
@@ -104,8 +101,8 @@ module.exports = (env,argv)=>{
                 publicPath: publicPath,
             }),
             new MiniCssExtractPlugin({
-                filename: isEnvProduction?"css/[name].[hash:8].css":isEnvDevelopment&&"static/css/[name].css",
-                chunkFilename: isEnvProduction?"css/[id].[hash:8].css":isEnvDevelopment&&"static/css/[id].css"
+                filename: isEnvProduction?"static/css/[name].[contenthash:8].css":isEnvDevelopment&&"static/css/[name].css",
+                chunkFilename: isEnvProduction?"static/css/[id].[contenthash:8].css":isEnvDevelopment&&"static/css/[id].css"
               })
         ],
 
