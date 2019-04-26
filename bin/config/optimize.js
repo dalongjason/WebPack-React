@@ -48,7 +48,7 @@ module.exports=(mode)=>{
         mangleWasmImports: true,
         removeAvailableModules: false,
         removeEmptyChunks: false,
-        nodeEnv:process.env.NODE_ENV === 'development',
+        nodeEnv:mode?'production':'development',
         // splitChunks: {
         //     chunks: 'all',
         //     name: false,

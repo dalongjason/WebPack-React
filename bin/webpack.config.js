@@ -7,6 +7,7 @@ const WebpackManifestPlugin = require('webpack-manifest-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 
 const Loader = require('./loader');
@@ -17,7 +18,8 @@ const Optimize = require('./config/optimize');
 module.exports = (env,argv)=>{
     const isEnvDevelopment=argv.mode==='development';
     const isEnvProduction=argv.mode==='production';
-
+    process.env.NODE_ENV=isEnvDevelopment?'development':'production'
+    process.env.BABEL_ENV=isEnvDevelopment?'development':'production'
     const publicPath=isEnvProduction?Paths.servedPath:'/';
 
     const WebpackServer= isEnvDevelopment?{devServer:Server(argv.prot,Paths.servedPath),optimization:Optimize(isEnvProduction)}:{optimization:Optimize(isEnvProduction)};
@@ -95,6 +97,9 @@ module.exports = (env,argv)=>{
         plugins: [
             new Webpack.ProgressPlugin(),
             isEnvProduction?new CleanWebpackPlugin():new Webpack.HotModuleReplacementPlugin(),
+            new Webpack.DefinePlugin({
+                // 'process.env.NODE_ENV':isEnvDevelopment?'development':'production',
+            }),
             ...appHtml(Paths.appEntry),
             new WebpackManifestPlugin({
                 fileName: 'asset-manifest.json',
@@ -103,7 +108,10 @@ module.exports = (env,argv)=>{
             new MiniCssExtractPlugin({
                 filename: isEnvProduction?"static/css/[name].[contenthash:8].css":isEnvDevelopment&&"static/css/[name].css",
                 chunkFilename: isEnvProduction?"static/css/[id].[contenthash:8].css":isEnvDevelopment&&"static/css/[id].css"
-              })
+            }),
+            new CopyPlugin([
+                ...Paths.appCopy
+            ]),
         ],
 
     }

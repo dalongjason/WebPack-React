@@ -1,6 +1,7 @@
 /**
  *  Created by hu on 2019-04-22.
  **/
+const Paths=require('./paths');
 module.exports=(prot,pathSrc)=>{
     return {
         contentBase:pathSrc,
@@ -11,17 +12,9 @@ module.exports=(prot,pathSrc)=>{
         compress:true,
         port:prot,
         host:'127.0.0.1',
-        stats: 'errors-only',
+        stats: Paths.appProxy.stats,
         proxy:{
-            "/api/*":{
-                target:'http://php.jason.com/api/',
-                pathRewrite:{"^/api/":''},
-                changeOrigin:true,
-                secure: false,
-                bypass:function(req, res, proxyOptions){
-                    console.log(req, res, proxyOptions)
-                }
-            },
+            ...Paths.appProxy.data
         }
     }
 }
