@@ -1,6 +1,22 @@
 {
-  "presets": ["@babel/preset-env","@babel/preset-react"],
+  "presets": [["@babel/preset-env",{
+    "targets": {
+      "esmodules": true,
+      "browsers": [
+        ">0.2%",
+        "not ie <= 11",
+        "not op_mini all",
+        "last 3 versions"
+      ]
+    },
+    "modules": false
+  }],"@babel/preset-react"],
   "plugins": [
-    "@babel/plugin-proposal-object-rest-spread"
+    ["@babel/plugin-transform-runtime"],
+    ["@babel/plugin-transform-arrow-functions", { "spec": true }],
+    ["@babel/plugin-proposal-decorators", { "legacy": true }],
+    ["@babel/plugin-proposal-class-properties"],
+    ["@babel/plugin-transform-object-assign"],
+    ["@babel/plugin-proposal-object-rest-spread"]
   ]
 }
