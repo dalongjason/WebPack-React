@@ -2,6 +2,7 @@
  *  Created by hu on 2019-04-26.
  **/
 const path = require('path');
+const Os = require('os');
 const fs = require('fs');
 const envPublicUrl = process.env.PUBLIC_URL;
 const appDirectory = fs.realpathSync(process.cwd());
@@ -36,5 +37,18 @@ function fsToExist(name,ext='js'){
     let pathexist=`${name}.${ext}`;
 }
 
+function getIP(){
+    const IPv4=[];
+    const networkInterfaces=Os.networkInterfaces();
+    const Interfaces=Object.keys(networkInterfaces);
+    Interfaces.map(item=>{
+        networkInterfaces[item].filter(({family,address})=>{
+            if(family==='IPv4'){
+                IPv4.push(address)
+            }
+        });
+    });
+    return IPv4;
+}
 
-module.exports={resolveApp,getServedPath,getPackageValue,fsToExist}
+module.exports={resolveApp,getServedPath,getPackageValue,fsToExist,getIP}

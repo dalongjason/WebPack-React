@@ -1,8 +1,7 @@
 /**
  *  Created by hu on 2019-04-22.
  **/
-
-module.exports=(mode)=>{
+module.exports=(mode,project)=>{
     return {
         test: /\.(png|jpg|gif|webp|ico)$/,
         use: [
@@ -12,14 +11,14 @@ module.exports=(mode)=>{
                     limit: 10240,
                     name:mode?'[contenthash:20].[ext]':'[name].[contenthash:2].[ext]',
                     emitFile: true,
-                    outputPath:mode?'static/image':'static/image'
+                    outputPath:mode?'static/image/':'static/image/'
                 }
             }:{
                 loader:'file-loader',
                 options: {
                     name:mode?'[contenthash:20].[ext]':'[name].[contenthash:2].[ext]',
                     emitFile: true,
-                    outputPath:mode?'static/image':'static/image'
+                    outputPath:mode?'static/image/':'static/image/'
                 }
             },
 
