@@ -31,7 +31,7 @@ module.exports=(prot,pathSrc)=>{
                 console.info(`\u001b[47;30m 服务已启动一下Url可以访问: \u001b[0m`);
                 console.info(`\u001b[47;30m ${index}: \u001b[42;30m "http://${item}:${prot}"  入口!!\u001b[0m`);
             })
-            // Tool.openBrowser(prot);
+            Tool.openBrowser(prot);
         },
         quiet: true,
         overlay: {//当出现编译器错误或警告时，就在网页上显示一层黑色的背景层和错误信息
