@@ -171,7 +171,6 @@ module.exports = (env,argv)=>{
                 clearConsole:true,////是否每次编译之间清除控制台,默认为true
             }),
             new CompressionWebpackPlugin({
-                // asset: '[path].gz[query]',
                 filename: '[path].gz[query]',
                 algorithm: 'gzip',
                 test: new RegExp('\\.(js|css)$'),
@@ -180,7 +179,7 @@ module.exports = (env,argv)=>{
                 // 示例：一个1024b大小的文件，压缩后大小为768b，minRatio : 0.75
                 minRatio: 0.8, // 默认: 0.8
                 // 是否删除源文件，默认: false
-                deleteOriginalAssets: false
+                deleteOriginalAssets: true
             })
         ],
         performance: {
