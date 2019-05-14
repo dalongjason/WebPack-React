@@ -18,7 +18,7 @@ module.exports=(prot,pathSrc)=>{
         inline: true,
         progress: true,
         allowedHosts:allowedHosts,//添加白名单服务
-        compress:true,
+        compress:true, //一切服务都启用 gzip 压缩
         port:prot,
         disableHostCheck: true,
         host:'0.0.0.0',
