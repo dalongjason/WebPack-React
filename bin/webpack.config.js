@@ -10,6 +10,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin'); //清空打包目录
 const CopyPlugin = require('copy-webpack-plugin'); //拷贝静态资源
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin'); //能够更好在终端看到webapck运行的警告和错误
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;//webpack分析将bundle内容表示为方便的交互式可缩放树形图
+const CompressionWebpackPlugin = require('compression-webpack-plugin'); //Gzip压缩插件
 
 
 const Loader = require('./loader');
@@ -169,6 +170,18 @@ module.exports = (env,argv)=>{
                 },
                 clearConsole:true,////是否每次编译之间清除控制台,默认为true
             }),
+            new CompressionWebpackPlugin({
+                // asset: '[path].gz[query]',
+                filename: '[path].gz[query]',
+                algorithm: 'gzip',
+                test: new RegExp('\\.(js|css)$'),
+                // 只处理大于xx字节 的文件，默认：0
+                threshold: 10240,
+                // 示例：一个1024b大小的文件，压缩后大小为768b，minRatio : 0.75
+                minRatio: 0.8, // 默认: 0.8
+                // 是否删除源文件，默认: false
+                deleteOriginalAssets: false
+            })
         ],
         performance: {
             // false | "error" | "warning" // 不显示性能提示 | 以错误形式提示 | 以警告...

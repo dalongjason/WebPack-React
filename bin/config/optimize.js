@@ -64,7 +64,7 @@ module.exports=(mode)=>{
         // },
         splitChunks: {
             chunks: "all", // initial、async和all
-            minSize: 30000,// 形成一个新代码块最小的体积
+            minSize: 300000,// 形成一个新代码块最小的体积
             minChunks: 1,
             maxAsyncRequests: 5,// 按需加载时候最大的并行请求数
             maxInitialRequests: 2,// 最大初始化请求数
