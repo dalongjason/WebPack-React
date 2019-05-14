@@ -2,9 +2,10 @@
  *  Created by hu on 2019-04-19.
  **/
 const path = require('path'); //node获取文件路径
+
 const Webpack = require('webpack'); //webpack
-const WebpackManifestPlugin = require('webpack-manifest-plugin'); //生成打包后的资源对照文件
 const HtmlWebpackPlugin = require('html-webpack-plugin'); //生成html文件以及自动吧打包后的文件link到html中
+const WebpackManifestPlugin = require('webpack-manifest-plugin'); //生成打包后的资源对照文件
 const MiniCssExtractPlugin = require("mini-css-extract-plugin"); //抽取css样式到单独的css文件中
 const CleanWebpackPlugin = require('clean-webpack-plugin'); //清空打包目录
 const CopyPlugin = require('copy-webpack-plugin'); //拷贝静态资源
@@ -12,11 +13,11 @@ const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin'); /
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;//webpack分析将bundle内容表示为方便的交互式可缩放树形图
 const CompressionWebpackPlugin = require('compression-webpack-plugin'); //Gzip压缩插件
 
-
 const Loader = require('./loader');
 const Paths = require('./config/paths');
 const Server = require('./config/server');
 const Optimize = require('./config/optimize');
+const Plugins = require('./plugins/index');
 
 module.exports = (env,argv)=>{
     const isEnvDevelopment=argv.mode==='development';
@@ -136,7 +137,6 @@ module.exports = (env,argv)=>{
         ...WebpackServer,
         plugins: [
             new Webpack.ProgressPlugin(),
-            isEnvProduction?(new CleanWebpackPlugin(),new BundleAnalyzerPlugin()):new Webpack.HotModuleReplacementPlugin(),
             new Webpack.DefinePlugin({
                 __DEV__:JSON.stringify(environment),
             }),
@@ -152,35 +152,7 @@ module.exports = (env,argv)=>{
             new CopyPlugin([
                 ...Paths.appCopy
             ]),
-            new FriendlyErrorsWebpackPlugin({
-                // 运行成功
-                compilationSuccessInfo:{
-                    message:['你的应用程序在这里运行http：// localhost：3000'],
-                    notes:['编译成功,报错后在次编译可能页面不能自动刷新,如为自动刷新！请手动刷新']
-                },
-                // 运行错误
-                onErrors:function(severity,errors){
-                    console.log(severity);
-                    if(severity==='error'){
-                        errors.map((itme,index)=>{
-                            let {severity='',webpackError='',name='',origin='',file=''} =itme;
-                            console.error(`\u001b[41;37m ERROR:${index+1} \u001b[0;31m "${webpackError}"!! \u001b[0m`);
-                        })
-                    }
-                },
-                clearConsole:true,////是否每次编译之间清除控制台,默认为true
-            }),
-            new CompressionWebpackPlugin({
-                filename: '[path].gz[query]',
-                algorithm: 'gzip',
-                test: new RegExp('\\.(js|css)$'),
-                // 只处理大于xx字节 的文件，默认：0
-                threshold: 10240,
-                // 示例：一个1024b大小的文件，压缩后大小为768b，minRatio : 0.75
-                minRatio: 0.8, // 默认: 0.8
-                // 是否删除源文件，默认: false
-                deleteOriginalAssets: true
-            })
+            ...Plugins(isEnvProduction)
         ],
         performance: {
             // false | "error" | "warning" // 不显示性能提示 | 以错误形式提示 | 以警告...
