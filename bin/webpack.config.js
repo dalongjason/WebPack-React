@@ -1,13 +1,15 @@
 /**
  *  Created by hu on 2019-04-19.
  **/
-const path = require('path');
-const Webpack = require('webpack');
-const WebpackManifestPlugin = require('webpack-manifest-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CleanWebpackPlugin = require('clean-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
+const path = require('path'); //node获取文件路径
+const Webpack = require('webpack'); //webpack
+const WebpackManifestPlugin = require('webpack-manifest-plugin'); //生成打包后的资源对照文件
+const HtmlWebpackPlugin = require('html-webpack-plugin'); //生成html文件以及自动吧打包后的文件link到html中
+const MiniCssExtractPlugin = require("mini-css-extract-plugin"); //抽取css样式到单独的css文件中
+const CleanWebpackPlugin = require('clean-webpack-plugin'); //清空打包目录
+const CopyPlugin = require('copy-webpack-plugin'); //拷贝静态资源
+const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin'); //能够更好在终端看到webapck运行的警告和错误
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;//webpack分析将bundle内容表示为方便的交互式可缩放树形图
 
 
 const Loader = require('./loader');
@@ -72,7 +74,8 @@ module.exports = (env,argv)=>{
                     chunksSortMode: 'none',
                     title:title,
                     filename: isEnvProduction?`./index.html`:`./index.html`,
-                    chunks:[...chunks],
+                    chunks:[...chunks,'vendors'],
+                    // chunks:[...chunks,],
                     inject: true,
                     xhtml:true
                 },isEnvProduction?{
@@ -103,17 +106,18 @@ module.exports = (env,argv)=>{
         }
         return appHtml;
     }
+    // process.exit();
     return{
         entry:appEntry(Paths.appEntry),
         output:{
             path: isEnvProduction ? `${Paths.appBuild}/${AppProject}` : Paths.servedPath,//建立文件夹。
             pathinfo: isEnvDevelopment,// 向输出中生成的require()添加/* filename */注释。
             filename: isEnvProduction? `static/js/[name].[contenthash:8].js`: isEnvDevelopment && 'static/js/[name].js',//每个异步块将有一个主包和一个文件。在开发中，它不会生成真正的文件。
-            chunkFilename: isEnvProduction?`static/js/chunk/[name].[contenthash:8].js`:isEnvDevelopment && 'static/js/chunk/[name].chunk.js',//如果使用代码分割，还有额外的JS块文件。
+            chunkFilename: isEnvProduction?`static/js/chunk/[name].[contenthash:8].bundle.js`:isEnvDevelopment && 'static/js/chunk/[name].bundle.js',//如果使用代码分割，还有额外的JS块文件。
             publicPath: publicPath,
             devtoolModuleFilenameTemplate: isEnvProduction // 指向原始磁盘位置的点sourcemap条目(格式为Windows上的URL)
                 ?info =>
-                    path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, '/'):
+                    path.relative(Paths.appSrc, info.absoluteResourcePath).replace(/\\/g, '/'):
                     isEnvDevelopment&&(info => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/')),
         },
         mode:argv.mode,
@@ -131,7 +135,7 @@ module.exports = (env,argv)=>{
         ...WebpackServer,
         plugins: [
             new Webpack.ProgressPlugin(),
-            isEnvProduction?new CleanWebpackPlugin():new Webpack.HotModuleReplacementPlugin(),
+            isEnvProduction?(new CleanWebpackPlugin(),new BundleAnalyzerPlugin()):new Webpack.HotModuleReplacementPlugin(),
             new Webpack.DefinePlugin({
                 __DEV__:JSON.stringify(environment),
             }),
@@ -147,7 +151,31 @@ module.exports = (env,argv)=>{
             new CopyPlugin([
                 ...Paths.appCopy
             ]),
+            new FriendlyErrorsWebpackPlugin({
+                // 运行成功
+                compilationSuccessInfo:{
+                    message:['你的应用程序在这里运行http：// localhost：3000'],
+                    notes:['编译成功,报错后在次编译可能页面不能自动刷新,如为自动刷新！请手动刷新']
+                },
+                // 运行错误
+                onErrors:function(severity,errors){
+                    console.log(severity);
+                    if(severity==='error'){
+                        errors.map((itme,index)=>{
+                            let {severity='',webpackError='',name='',origin='',file=''} =itme;
+                            console.error(`\u001b[41;37m ERROR:${index+1} \u001b[0;31m "${webpackError}"!! \u001b[0m`);
+                        })
+                    }
+                },
+                clearConsole:true,////是否每次编译之间清除控制台,默认为true
+            }),
         ],
-
+        performance: {
+            // false | "error" | "warning" // 不显示性能提示 | 以错误形式提示 | 以警告...
+            hints: isEnvProduction?"warning":false,        // 开发环境设置较大防止警告
+            // 根据入口起点的最大体积，控制webpack何时生成性能提示,整数类型,以字节为单位
+            maxEntrypointSize: 250000,         // 最大单个资源体积，默认250000 (bytes)
+            maxAssetSize: 3000000
+        }
     }
 }

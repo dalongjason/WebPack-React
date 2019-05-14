@@ -31,31 +31,31 @@ function getServedPath(appPackageJson){
     return ensureSlash(servedUrl, true);
 }
 /**
- * 获取package.json文件中某个key下面的value
- * @method getPackageValue
- * @param {string} key 需要获取的key
- * @return {undefined|any} 如果没有该定义该key返回undefined，否则返回当前key的value
- */
+  * 获取package.json文件中某个key下面的value
+  * @method getPackageValue
+  * @param {string} key 需要获取的key
+  * @return {undefined|any} 如果没有该定义该key返回undefined，否则返回当前key的value
+*/
 function getPackageValue(key){
     const  Package=require(resolveApp('package.json'))
     return Package[key]!=null?Package[key]:undefined
 }
 /**
- * 根据name与ext拼接完整的文件名称
- * @method 名称
- * @for JJTool
- * @param {string} name 文件名
- * @param {string} ext 文件类型
- * @return {string} 完整的文件名
- */
+  * 根据name与ext拼接完整的文件名称
+  * @method 名称
+  * @for JJTool
+  * @param {string} name 文件名
+  * @param {string} ext 文件类型
+  * @return {string} 完整的文件名
+*/
 function fsToExist(name,ext='js'){
     let pathexist=`${name}.${ext}`;
 }
 /**
- * 获取本地可用的Ip
- * @method getIP
- * @return {Array} 返回可用本地IP
- */
+  * 获取本地可用的Ip
+  * @method getIP
+  * @return {Array} 返回可用本地IP
+*/
 function getIP(){
     const IPv4=[];
     const networkInterfaces=Os.networkInterfaces();
@@ -70,10 +70,10 @@ function getIP(){
     return IPv4;
 }
 /**
- * 根据输入的端口打开浏览器
- * @method openBrowser
- * @param {number} prot 描述
- */
+  * 根据输入的端口打开浏览器
+  * @method openBrowser
+  * @param {number} prot 描述
+*/
 function openBrowser(prot) {
     switch (process.platform) {
         //mac系统使用 一下命令打开url在浏览器
