@@ -6,6 +6,7 @@ const Os = require('os');
 const Fs = require('fs');
 const Cp  = require('child_process');
 const Net = require('net');
+const Url = require('url');
 
 const envPublicUrl = process.env.PUBLIC_URL;
 const appDirectory = Fs.realpathSync(process.cwd());
@@ -27,7 +28,7 @@ function ensureSlash(inputPath, needsSlash) {
 function getServedPath(appPackageJson){
     const publicUrl = getPublicUrl(appPackageJson);
     const servedUrl =
-        envPublicUrl || (publicUrl ? url.parse(publicUrl).pathname : '/');
+        envPublicUrl || (publicUrl ? Url.parse(publicUrl).pathname : '/');
     return ensureSlash(servedUrl, true);
 }
 /**

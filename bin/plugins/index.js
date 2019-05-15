@@ -18,7 +18,7 @@ module.exports=(mode=true)=>{
             new CompressionWebpackPlugin({
                 filename: '[path].gz[query]',
                 algorithm: 'gzip',
-                test: /\.(js|css|html|svg|ts)$/,
+                test: /\.(js|css|ts)$/,
                 threshold: 10240, // 只处理大于xx字节 的文件，默认：0
                 minRatio: 0.8, // 示例：一个1024b大小的文件，压缩后大小为768b，minRatio : 0.75 默认: 0.8
                 deleteOriginalAssets: false //是否删除原始资源。默认: false

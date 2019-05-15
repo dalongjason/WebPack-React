@@ -8,6 +8,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin'); //生成html文件以�
 const WebpackManifestPlugin = require('webpack-manifest-plugin'); //生成打包后的资源对照文件
 const MiniCssExtractPlugin = require("mini-css-extract-plugin"); //抽取css样式到单独的css文件中
 const CopyPlugin = require('copy-webpack-plugin'); //拷贝静态资源
+const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin'); //这为模块not found错误提供了一些必要的上下文，例如请求资源。
 
 const Loader = require('./loader');
 const Paths = require('./config/paths');
@@ -20,7 +21,8 @@ module.exports = (env,argv)=>{
     const isEnvProduction=argv.mode==='production';
     process.env.NODE_ENV=isEnvDevelopment?'development':'production'
     process.env.BABEL_ENV=isEnvDevelopment?'development':'production'
-    const publicPath=isEnvProduction?Paths.servedPath:'/';
+    const publicPath=isEnvProduction?Paths.servedPath:isEnvDevelopment && '/';
+    const shouldUseRelativeAssetPaths = publicPath === './';
     const environment=argv.environment===undefined?'':argv.environment;
     const AppProject=argv.project!==undefined&&argv.project.length>0&&argv.project;
     console.info('\u001b[2J');
@@ -108,7 +110,7 @@ module.exports = (env,argv)=>{
     return{
         entry:appEntry(Paths.appEntry),
         output:{
-            path: isEnvProduction ? `${Paths.appBuild}/${AppProject}` : Paths.servedPath,//建立文件夹。
+            path: isEnvProduction ? `${Paths.appBuild}/${AppProject}` : undefined,//建立文件夹。
             pathinfo: isEnvDevelopment,// 向输出中生成的require()添加/* filename */注释。
             filename: isEnvProduction? `static/js/[name].[contenthash:8].js`: isEnvDevelopment && 'static/js/[name].js',//每个异步块将有一个主包和一个文件。在开发中，它不会生成真正的文件。
             chunkFilename: isEnvProduction?`static/js/chunk/[name].[contenthash:8].bundle.js`:isEnvDevelopment && 'static/js/chunk/[name].bundle.js',//如果使用代码分割，还有额外的JS块文件。
@@ -124,7 +126,7 @@ module.exports = (env,argv)=>{
         devtool:devtool,
         module:{
             rules:[
-                ...Loader(isEnvProduction,AppProject)
+                ...Loader(isEnvProduction,AppProject,shouldUseRelativeAssetPaths)
             ]
         },
         resolve: {
@@ -132,6 +134,7 @@ module.exports = (env,argv)=>{
         },
         ...WebpackServer,
         plugins: [
+            new ModuleNotFoundPlugin(Paths.appPath),
             new Webpack.ProgressPlugin(),
             new Webpack.DefinePlugin({
                 __DEV__:JSON.stringify(environment),
@@ -140,6 +143,16 @@ module.exports = (env,argv)=>{
             new WebpackManifestPlugin({
                 fileName: 'asset-manifest.json',
                 publicPath: publicPath,
+                generate: (seed, files) => {
+                    const manifestFiles = files.reduce(function(manifest, file) {
+                        manifest[file.name] = file.path;
+                        return manifest;
+                    }, seed);
+
+                    return {
+                        files: manifestFiles,
+                    };
+                },
             }),
             new MiniCssExtractPlugin({
                 filename: isEnvProduction?"static/css/[name].[contenthash:8].css":isEnvDevelopment&&"static/css/[name].css",
