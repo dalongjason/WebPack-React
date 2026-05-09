@@ -1,42 +1,49 @@
 /**
  *  Created by hu on 2019-04-22.
+ *  Updated for Webpack 5 / Webpack Dev Server 4.x
  **/
+const path = require('path');
 const Paths = require('./paths');
 const Tool = require('./bin/tool');
 const Stats = require('./bin/stats');
 
-const allowedHosts=Tool.getIP();
+const allowedHosts = Tool.getIP();
 
-module.exports=(prot,pathSrc)=>{
-    // console.log(pathSrc,'@@@')
-    // process.exit();
+module.exports = (prot, pathSrc) => {
     return {
-        contentBase:pathSrc,
+        static: {
+            directory: path.resolve(__dirname, '../../public'),
+            publicPath: ['/'],
+        },
         historyApiFallback: true,
-        hot:true,
-        hotOnly: true, //布局刷新
-        inline: true,
-        progress: true,
-        allowedHosts:allowedHosts,//添加白名单服务
-        compress:true, //一切服务都启用 gzip 压缩
-        port:prot,
-        disableHostCheck: true,
-        host:'0.0.0.0',
-        stats:Stats,
-        proxy:{
+        hot: true,
+        hotOnly: true,
+        liveReload: false,
+        compress: true,
+        port: prot,
+        allowedHosts: allowedHosts,
+        host: '0.0.0.0',
+        client: {
+            overlay: {
+                errors: true,
+                warnings: false,
+                runtimeErrors: true,
+            },
+            progress: true,
+        },
+        devMiddleware: {
+            stats: Stats,
+            writeToDisk: true,
+        },
+        proxy: {
             ...Paths.appProxy.data
         },
-        after: function () {
-            allowedHosts.map((item,index)=>{
-                console.info(`\u001b[47;30m 服务已启动一下Url可以访问: \u001b[0m`);
-                console.info(`\u001b[47;30m ${index}: \u001b[42;30m "http://${item}:${prot}"  入口!!\u001b[0m`);
-            })
+        onAfterSetupMiddleware: function(devServer) {
+            allowedHosts.map((item, index) => {
+                console.info(`\u001B[47;30m 服务已启动，以下Url可以访问: \u001B[0m`);
+                console.info(`\u001B[47;30m ${index}: \u001B[42;30m "http://${item}:${prot}"  入口!!\u001B[0m`);
+            });
             Tool.openBrowser(prot);
         },
-        quiet: true,
-        overlay: {//当出现编译器错误或警告时，就在网页上显示一层黑色的背景层和错误信息
-            errors: true,
-            warn:true,
-        },
     }
-}
+};

@@ -1,19 +1,14 @@
 /**
  *  Created by hu on 2019-04-17.
+ *  Updated for React 18
  **/
-import React ,{Component} from 'react';
+import React from 'react';
 import RootRouter from '../router/RootRouter';
 
-class App extends Component{
-    constructor(props){
-        super(props);
-    }
-
-    render() {
-        return(
-            <RootRouter/>
-        )
-    }
+function App() {
+    return (
+        <RootRouter />
+    );
 }
 
 export default App;

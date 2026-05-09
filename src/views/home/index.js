@@ -1,17 +1,15 @@
-import React, {Component} from 'react';
+import React from 'react';
+import {useNavigate} from 'react-router-dom';
 
-class Home extends Component{
-    constructor(props){
-        super(props);
-    }
+function Home() {
+    const navigate = useNavigate();
 
-    render() {
-        return(
-            <div>
-                <div>首页</div>
-                <button onClick={()=>this.props.history.push('my')}>去我的页面</button>
-            </div>
-        )
-    }
+    return (
+        <div>
+            <div>首页</div>
+            <button onClick={() => navigate('my')}>去我的页面</button>
+        </div>
+    );
 }
+
 export default Home;

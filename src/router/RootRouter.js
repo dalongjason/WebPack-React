@@ -1,20 +1,16 @@
-import React  from "react";
-import {BrowserRouter,Switch} from 'react-router-dom';
-import {renderRoutes} from 'react-router-config';
+import React from "react";
+import {BrowserRouter, Routes, Route} from 'react-router-dom';
 
-import HomeRoter from '../views/home/router';
-import MyRoter from '../views/my/router';
+import Home from '../views/home';
+import My from '../views/my';
 
-const routes=[
-    ...HomeRoter,
-    ...MyRoter
-]
-
-const RootRouter=()=>(
+const RootRouter = () => (
     <BrowserRouter>
-        <Switch>
-            {renderRoutes(routes)}
-        </Switch>
+        <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/my" element={<My />} />
+        </Routes>
     </BrowserRouter>
 );
+
 export default RootRouter;
