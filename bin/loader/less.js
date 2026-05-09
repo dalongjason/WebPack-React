@@ -8,12 +8,7 @@ module.exports = (mode) => {
     return {
         test: /\.less$/,
         use: [
-            !mode ? {
-                loader: 'style-loader',
-                options: {
-                    hmr: false
-                }
-            } : {
+            !mode ? 'style-loader' : {
                 loader: MiniCssExtractPlugin.loader,
                 options: {
                     publicPath: '/',

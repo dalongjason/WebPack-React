@@ -5,7 +5,6 @@
 const path = require('path');
 const Paths = require('./paths');
 const Tool = require('./bin/tool');
-const Stats = require('./bin/stats');
 
 const allowedHosts = Tool.getIP();
 
@@ -17,7 +16,6 @@ module.exports = (prot, pathSrc) => {
         },
         historyApiFallback: true,
         hot: true,
-        hotOnly: true,
         liveReload: false,
         compress: true,
         port: prot,
@@ -27,12 +25,11 @@ module.exports = (prot, pathSrc) => {
             overlay: {
                 errors: true,
                 warnings: false,
-                runtimeErrors: true,
             },
             progress: true,
         },
         devMiddleware: {
-            stats: Stats,
+            stats: 'errors-warnings',
             writeToDisk: true,
         },
         proxy: {
@@ -43,7 +40,6 @@ module.exports = (prot, pathSrc) => {
                 console.info(`\u001B[47;30m 服务已启动，以下Url可以访问: \u001B[0m`);
                 console.info(`\u001B[47;30m ${index}: \u001B[42;30m "http://${item}:${prot}"  入口!!\u001B[0m`);
             });
-            Tool.openBrowser(prot);
         },
     }
 };

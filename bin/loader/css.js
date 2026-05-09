@@ -8,12 +8,7 @@ module.exports = (mode, project, resourcepath) => {
     return {
         test: /\.css$/,
         use: [
-            !mode ? {
-                loader: 'style-loader',
-                options: {
-                    hmr: false
-                }
-            } : {
+            !mode ? 'style-loader' : {
                 loader: MiniCssExtractPlugin.loader,
                 options: Object.assign(
                     {},

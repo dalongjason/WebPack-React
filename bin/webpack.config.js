@@ -100,7 +100,7 @@ module.exports = (env, argv) => {
             assetModuleFilename: 'static/media/[name].[hash][ext]',
         },
         mode: argv.mode,
-        watch: true,
+        watch: !isEnvProduction,
         bail: isEnvProduction,
         devtool: devtool,
         module: {
